@@ -30,18 +30,26 @@ class RLAgent {
     }
 
     private void ExecutePExploit(){
-        int steps = 0;
-        while(steps < 6000){
-            while(!gridWorld.isGoalState()){
-                if(gridWorld.x == 0){
-                    //check if can pickup block
-                }
-                //check if can drop block
-                else if(gridWorld.x == 1){
-                }
-                steps++;
+        while(!gridWorld.isGoalState()){
+            //check if on pickup block
+            if(gridWorld.x == 0 && (gridWorld.getCellType())[gridWorld.i][gridWorld.j] == 2){
+                //check if can pickup block
+                gridWorld.pickUpBlock();
+                gridWorld.setRewards(13);
+                gridWorld.qTableUpdate(gridWorld.x, 4, 13);
             }
-            gridWorld.resetPDWorld();
+            //check if can drop block
+            else if(gridWorld.x == 0 && (gridWorld.getCellType())[gridWorld.i][gridWorld.j] == 1){
+                //check if can drop block
+                gridWorld.dropBlock();
+                gridWorld.setRewards(13); 
+                gridWorld.qTableUpdate(gridWorld.x, 5, gridWorld.selectAction());   
+            }
+            else{
+                //gridWorld.qTableUpdate(action, state, updateValue);
+            }
         }
+        //reset world after terminating
+        gridWorld.resetPDWorld();
     }
 }

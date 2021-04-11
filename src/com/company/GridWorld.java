@@ -14,8 +14,8 @@ public class GridWorld {
     double alpha, gamma;
     int i = 5; int j = 1; // start position
     int x = 0; // 1 agent carry block; 0 else
-    int a,b,c,f = 0; // # blocks dropcell
-    int d,e = 8; // # blocks pickup cell
+    int a,b,c,f = 0; // # blocks dropcell [0,0][0,4][2,2][4,4]
+    int d,e = 8; // # blocks pickup cell [2,4][3,1]
 
     private void initWorld(){
 
@@ -48,8 +48,8 @@ public class GridWorld {
         rewards[3][1] = 13;
     }
 
-    public void qTableUpdate(int action, int state, int updateValue){
-        qTable[action][state] = updateValue;
+    public void qTableUpdate(int state, int action, int updateValue){
+        qTable[state][action] = ((1-alpha)*qTable[state][action]) + (alpha * (()+gamma*()));
     }
 
     public boolean isGoalState(){
@@ -66,10 +66,75 @@ public class GridWorld {
     public int[][] getPDWorld(){
         return this.pdWorld;
     }
+    public int[][] getCellType(){
+        return this.cellType;
+    }
     public void resetPDWorld(){
         this.pdWorld = new int[5][5];
         //reset start location
         this.i = 4;
         this.j = 0;
+        this.i = 5; this.j = 1; // start position
+        this.x = 0; // 1 agent carry block; 0 else
+        this.a = 0; this.b=0; this.c=0; this.f=0; // # blocks dropcell
+        this.d=8; this.e=8; // # blocks pickup cell
+    }
+    public void pickUpBlock(){
+        //remove block from specific location if possible
+        if(i == 2 && j == 4 && d > 0){
+            d--;
+            x = 1;
+        }
+        else if(i == 3 && j == 1 && e > 0){
+            e--;
+            x = 1;
+        }
+    }
+    public void dropBlock(){
+        //drop block if possible
+        if(i == 0 && j == 0 && a < 4){
+            a++;
+            x = 0;
+        }
+        else if(i == 0 && j == 4 && b < 4){
+            b++;
+            x = 0;
+        }
+        else if(i == 2 && j == 2 && c < 4){
+            c++;
+            x = 0;
+        }
+        else if(i == 4 && j == 4 && f < 4){
+            f++;
+            x = 0;
+        }
+    }
+    public void setRewards(int reward){
+        rewards[i][j] += reward;
+    }
+    public int selectAction(){
+        int action = -100;
+        int q = 0;
+            //north
+            if(i-1 > 0 && qTable[i-1][j] > q){
+                q = qTable[i-1][j];
+                action = 0;
+            }
+            //south
+            if(i+1 < 50 && qTable[i-1][j] > q){
+                q = qTable[i+1][j];
+                action = 2;
+            }
+            //west
+            if(j-1 > 0 && qTable[i][j-1] > q){
+                q = qTable[i][j-1];
+                action = 1;
+            }
+            //east
+            if(j+1 < 6 && qTable[i][j+1] > q){
+                q = qTable[i][j+1];
+                action = 3;
+            }
+        return action;
     }
 }
