@@ -5,7 +5,6 @@ public class GridWorld {
     private int[][] pdWorld = new int[5][5];
     private int[][] qTable = new int[50][6]; // 50 states; 6 actions: North, West, South, East, Pickup, Dropoff
     private int[][] cellType = new int[5][5];
-    private int[][] rewards = new int[5][5];
 
     public GridWorld(){
         initWorld();
@@ -32,24 +31,11 @@ public class GridWorld {
         //Initial number of blocks in each pickup cell
         pdWorld[2][4] = 8;
         pdWorld[3][1] = 8;
-
-        //set -1 rewards on normal type cell
-        for(int g = 0; g < 5; g++){
-            for(int h = 0; h < 5; h++){
-                rewards[g][h] = -1;
-            }
-        }
-        //set +13 rewards on pickup/dropoff type cell
-        rewards[0][0] = 13;
-        rewards[0][4] = 13;
-        rewards[2][2] = 13;
-        rewards[4][4] = 13;
-        rewards[2][4] = 13;
-        rewards[3][1] = 13;
     }
 
     public void qTableUpdate(int state, int action, int updateValue){
-        qTable[state][action] = ((1-alpha)*qTable[state][action]) + (alpha * (()+gamma*()));
+        qTable[state][action] = updateValue;
+        //qTable[state][action] = ((1-alpha)*qTable[state][action]) + (alpha * (()+gamma*())); //still figuring out
     }
 
     public boolean isGoalState(){
@@ -108,9 +94,6 @@ public class GridWorld {
             f++;
             x = 0;
         }
-    }
-    public void setRewards(int reward){
-        rewards[i][j] += reward;
     }
     public int selectAction(){
         int action = -100;

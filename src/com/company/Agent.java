@@ -35,14 +35,12 @@ class RLAgent {
             if(gridWorld.x == 0 && (gridWorld.getCellType())[gridWorld.i][gridWorld.j] == 2){
                 //check if can pickup block
                 gridWorld.pickUpBlock();
-                gridWorld.setRewards(13);
                 gridWorld.qTableUpdate(gridWorld.x, 4, 13);
             }
             //check if can drop block
             else if(gridWorld.x == 0 && (gridWorld.getCellType())[gridWorld.i][gridWorld.j] == 1){
                 //check if can drop block
                 gridWorld.dropBlock();
-                gridWorld.setRewards(13); 
                 gridWorld.qTableUpdate(gridWorld.x, 5, gridWorld.selectAction());   
             }
             else{
