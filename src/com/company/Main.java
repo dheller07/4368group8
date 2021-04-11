@@ -1,5 +1,7 @@
 package com.company;
 
+import java.util.Random;
+
 public class Main{
     int alpha, gamma;
     int i = 5; int j = 1; // start position
