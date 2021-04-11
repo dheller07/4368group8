@@ -5,12 +5,13 @@ public class GridWorld {
     private int[][] pdWorld = new int[5][5];
     private int[][] qTable = new int[50][6]; // 50 states; 6 actions: North, West, South, East, Pickup, Dropoff
     private int[][] cellType = new int[5][5];
+    private int[][] rewards = new int[5][5];
 
     public GridWorld(){
         initWorld();
     }
 
-    int alpha, gamma;
+    double alpha, gamma;
     int i = 5; int j = 1; // start position
     int x = 0; // 1 agent carry block; 0 else
     int a,b,c,f = 0; // # blocks dropcell
@@ -21,12 +22,6 @@ public class GridWorld {
         //value of 0 ==> normal
         //value of 1 ==> drop-off
         //value of 2 ==> pickup
-        for(int i = 0;i<5;i++){
-            for(int j = 0;j<5;j++){
-                pdWorld[i][j] = 0;
-                cellType[i][j] = 0;
-            }
-        }
         cellType[0][0] = 1;
         cellType[0][4] = 1;
         cellType[2][2] = 1;
@@ -37,6 +32,20 @@ public class GridWorld {
         //Initial number of blocks in each pickup cell
         pdWorld[2][4] = 8;
         pdWorld[3][1] = 8;
+
+        //set -1 rewards on normal type cell
+        for(int g = 0; g < 5; g++){
+            for(int h = 0; h < 5; h++){
+                rewards[g][h] = -1;
+            }
+        }
+        //set +13 rewards on pickup/dropoff type cell
+        rewards[0][0] = 13;
+        rewards[0][4] = 13;
+        rewards[2][2] = 13;
+        rewards[4][4] = 13;
+        rewards[2][4] = 13;
+        rewards[3][1] = 13;
     }
 
     public void qTableUpdate(int action, int state, int updateValue){
@@ -49,5 +58,18 @@ public class GridWorld {
         } else{
             return false;
         }
+    }
+    public void setAlphaGamma(double alpha, double gamma){
+        this.alpha = alpha;
+        this.gamma = gamma;
+    }
+    public int[][] getPDWorld(){
+        return this.pdWorld;
+    }
+    public void resetPDWorld(){
+        this.pdWorld = new int[5][5];
+        //reset start location
+        this.i = 4;
+        this.j = 0;
     }
 }
