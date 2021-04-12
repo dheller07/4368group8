@@ -1,6 +1,6 @@
 package com.company;
 
-class RLAgent {
+class Agent {
     GridWorld gridWorld;
 
     //This is where we define to run the experiments
@@ -12,7 +12,7 @@ class RLAgent {
 
     public Policy policy;
 
-    public RLAgent(Policy policy){
+    public Agent(Policy policy){
         this.policy = policy;
         gridWorld = new GridWorld();
     }
@@ -24,4 +24,6 @@ class RLAgent {
     private void ExecutePGreedy(){
 
     }
+
+
 }
