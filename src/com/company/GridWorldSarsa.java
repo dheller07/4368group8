@@ -1,21 +1,26 @@
 package com.company;
 
+import com.company.visualization.GUI;
+
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 public class GridWorldSarsa {
+    public GUI gui;
+
     //NOTE: This is a duplicate of GridWorld that was setup for SARSA Learning.
     //Given the time we have, I don't want conflicts we merge our code
     public static int BOUNDARY = 5;
 
     private SarsaLearningAgent agent = null;
 
-    enum CellType{
+    public enum CellType{
         NORMAL,
         PICKUP,
         DROPOFF
     }
 
-    enum OperatorType {
+    public enum OperatorType {
         NORTH(0),
         WEST(1),
         SOUTH(2),
@@ -34,12 +39,13 @@ public class GridWorldSarsa {
         public float qTableValue;
     }
 
-    private int[][] pdWorld = new int[5][5];
-    private float[][] qTable = new float[50][6]; // 50 states; 6 actions: North, West, South, East, Pickup, Dropoff
-    private CellType[][] cellType = new CellType[5][5];
+    public int[][] pdWorld = new int[5][5];
+    public float[][] qTable = new float[50][6]; // 50 states; 6 actions: North, West, South, East, Pickup, Dropoff
+    public CellType[][] cellType = new CellType[5][5];
 
     public GridWorldSarsa(){
         initWorld();
+        initGUI();
         agent = new SarsaLearningAgent(SarsaLearningAgent.Policy.PRANDOM);
 
     }
@@ -191,13 +197,14 @@ public class GridWorldSarsa {
                 j = j-1;
                 break;
             case DROP:
-                if(drop(i,j,x)){
-                    x = 0;
+                if(updateWorldState){
+                    drop(i,j,x);
                 }
+                x = 0;
                 break;
             case PICK:
-                if(pick(i,j,x)){
-                    x = 1;
+                if(updateWorldState){
+                    pick(i,j,x);
                 }
                 x = 1;
                 break;
@@ -235,6 +242,7 @@ public class GridWorldSarsa {
     }
 
     public void run(){
+        int count = 1;
         while(!isGoalState()){
             int temp_i = i;
             int temp_j = j;
@@ -245,7 +253,6 @@ public class GridWorldSarsa {
 
             int[] updatedStates = applyOperator(temp_i,temp_j,temp_x, op, false);
             int reward = getReward(op.opType);
-            System.out.print("MOVING " + op.opType.toString() + " (i=" + temp_i + ", j=" + temp_j + ", x = " + temp_x + ")");
 
             int temp_i_prime = updatedStates[0];
             int temp_j_prime = updatedStates[1];
@@ -256,10 +263,36 @@ public class GridWorldSarsa {
 
 
             qValue = calculateQValueSARSA(qValue, qValuePrime, reward);
-            System.out.println(" qValue = " + Float.toString(qValue));
             updateQValue(temp_i, temp_j, temp_x, qValue, op.opType);
 
             applyOperator(temp_i, temp_j, temp_x, op, true);
+
+            System.out.print("STEP = " + count + " ");
+            System.out.print("ACTION -> " + op.opType.toString() + " (i=" + temp_i + ", j=" + temp_j + ", x = " + temp_x + ")");
+            System.out.println(" qValue = " + Float.toString(qValue));
+
+            count+=1;
+
+            //GUI
+            if(op.opType == OperatorType.PICK){
+                gui.wallEPickup();
+                gui.updatePickupPackage(pdWorld[i][j]);
+            } else if(op.opType == OperatorType.DROP) {
+                gui.wallEDropoff();
+                gui.updateDropoffPackage(pdWorld[i][j]);
+            } else {
+                gui.updateWallEPosition(i, j);
+            }
+            try{
+                TimeUnit.MILLISECONDS.sleep(200);
+            } catch(InterruptedException e){
+                System.out.println(e.toString());
+            }
         }
+        System.out.println("REACHED GOAL STATE");
+    }
+
+    private void initGUI(){
+        gui = new GUI(this);
     }
 }
