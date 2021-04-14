@@ -1,10 +1,9 @@
 package com.company.visualization;
 
-import com.company.GridWorldSarsa;
+import com.company.QGridWorld;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
 
 public class GUI {
 
@@ -17,7 +16,7 @@ public class GUI {
     int x;
     int y;
 
-    public GUI(GridWorldSarsa gridWorld){
+    public GUI(QGridWorld QGridWorld){
         frame = new JFrame();
         wallEImage = createImageIcon("res/walle.png");
         packageImage = createImageIcon("res/package.png");
@@ -29,10 +28,10 @@ public class GUI {
         for(int i = 0;i<5;i++){
             for(int j = 0;j<5;j++){
                 JButton button = new JButton();
-                if(gridWorld.cellType[i][j] == GridWorldSarsa.CellType.PICKUP){
+                if(QGridWorld.cellType[i][j] == com.company.QGridWorld.CellType.PICKUP){
                     button.setText("PICKUP (8)");
                     frame.add(button);
-                } else if(gridWorld.cellType[i][j] == GridWorldSarsa.CellType.DROPOFF){
+                } else if(QGridWorld.cellType[i][j] == com.company.QGridWorld.CellType.DROPOFF){
                     button.setText("DROPOFF (0)");
                     frame.add(button);
                 } else {
