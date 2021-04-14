@@ -3,7 +3,7 @@ package com.company;
 public class GridWorld {
 
     private int[][] pdWorld = new int[5][5];
-    private int[][] qTable = new int[50][6]; // 50 states; 6 actions: North, West, South, East, Pickup, Dropoff
+    private double[][] qTable = new double[50][6]; // 50 states; 6 actions: North, West, South, East, Pickup, Dropoff
     private int[][] cellType = new int[5][5];
 
     public GridWorld(){
@@ -11,7 +11,7 @@ public class GridWorld {
     }
 
     double alpha, gamma;
-    int i = 5; int j = 1; // start position
+    int i = 4; int j = 0; // start position
     int x = 0; // 1 agent carry block; 0 else
     int a,b,c,f = 0; // # blocks dropcell [0,0][0,4][2,2][4,4]
     int d,e = 8; // # blocks pickup cell [2,4][3,1]
@@ -34,8 +34,16 @@ public class GridWorld {
     }
 
     public void qTableUpdate(int state, int action, int updateValue){
-        qTable[state][action] = updateValue;
-        //qTable[state][action] = ((1-alpha)*qTable[state][action]) + (alpha * (()+gamma*())); //still figuring out
+        //qTable[state][action] = updateValue;
+        //update if pickup or drop off by reward = 13
+        if(cellType[i][j] == 2 || cellType[i][j] == 1){
+            qTable[state][action] = ((1-alpha)*qTable[state][action]) + (alpha * ((13)+gamma*(qTable[state][action]))); //still figuring out
+        }
+        else{
+            System.out.println("State: " + state);
+            System.out.println("Action: " + action);
+            qTable[state][action] = ((1-alpha)*qTable[state][action]) + (alpha * ((-1)+gamma*(qTable[state][updateValue])));
+        }
     }
 
     public boolean isGoalState(){
@@ -97,7 +105,7 @@ public class GridWorld {
     }
     public int selectAction(){
         int action = -100;
-        int q = 0;
+        double q = 0;
             //north
             if(i-1 > 0 && qTable[i-1][j] > q){
                 q = qTable[i-1][j];
@@ -118,6 +126,7 @@ public class GridWorld {
                 q = qTable[i][j+1];
                 action = 3;
             }
+            
         return action;
     }
 }

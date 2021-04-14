@@ -22,6 +22,12 @@ class RLAgent {
             //set gamma and alpha based on experiment #
             gridWorld.setAlphaGamma(.3,.5); //Experiment 1
             ExecutePExploit();
+            for(int g = 0; g < 50; g++){
+                for(int h = 0; h < 6; h++){
+                    System.out.print((gridWorld.getPDWorld())[g][h] + " ");
+                }
+                System.out.println();
+            }
         }
     }
 
@@ -41,10 +47,10 @@ class RLAgent {
             else if(gridWorld.x == 0 && (gridWorld.getCellType())[gridWorld.i][gridWorld.j] == 1){
                 //check if can drop block
                 gridWorld.dropBlock();
-                gridWorld.qTableUpdate(gridWorld.x, 5, gridWorld.selectAction());   
+                gridWorld.qTableUpdate(gridWorld.x, 5, 13);   
             }
             else{
-                //gridWorld.qTableUpdate(action, state, updateValue);
+                gridWorld.qTableUpdate(gridWorld.i,gridWorld.selectAction(), -1);
             }
         }
         //reset world after terminating
