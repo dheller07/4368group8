@@ -5,12 +5,10 @@ import com.company.visualization.GUI;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
-public class QGridWorld {
-    public GUI gui;
-
+public class GridWorld {
     public static int BOUNDARY = 5;
 
-    private QLearningAgent agent = null;
+    private Agent agent = null;
 
     public enum Policy{
         PRANDOM,
@@ -38,12 +36,12 @@ public class QGridWorld {
         DROP(5);
 
         public final int index;
-        private OperatorType(int i){
+        OperatorType(int i){
             index = i;
         }
     }
 
-    class Operator {
+    public class Operator {
         public OperatorType opType;
         public float qTableValue;
     }
@@ -54,10 +52,10 @@ public class QGridWorld {
     float alpha, gamma;
     int i, j, x, a, b, c, d, e, f;
 
-    public QGridWorld(){
+    public GridWorld(){
         initWorld();
         //initGUI();
-        agent = new QLearningAgent();
+        agent = new Agent();
 
     }
 
@@ -120,7 +118,7 @@ public class QGridWorld {
     }
 
     public void resetAgent(){
-        agent = new QLearningAgent();
+        agent = new Agent();
     }
 
     public void resetQTable(){
@@ -265,24 +263,17 @@ public class QGridWorld {
     }
 
     private boolean isInsideBoundary(int i, int j){
-       if((i < 0 || i >= BOUNDARY) || (j < 0 || j >= BOUNDARY)){
-           return false;
-       }
-       return true;
+        return (i >= 0 && i < BOUNDARY) && (j >= 0 && j < BOUNDARY);
     }
 
     private boolean isGoalState(){
-        if(a == 4 && b == 4 && c == 4 && f == 4 && d == 0 && e == 0){
-            return true;
-        } else{
-            return false;
-        }
+        return a == 4 && b == 4 && c == 4 && f == 4 && d == 0 && e == 0;
     }
 
     public void printStep(int step, Operator op, int temp_i, int temp_j, int temp_x, float qValue){
         System.out.print("STEP = " + step + " ");
         System.out.print("ACTION -> " + op.opType.toString() + " (i=" + temp_i + ", j=" + temp_j + ", x = " + temp_x + ")");
-        System.out.println(" qValue = " + Float.toString(qValue));
+        System.out.println(" qValue = " + qValue);
     }
 
     public void printQTable(OperatorType op){
@@ -326,20 +317,22 @@ public class QGridWorld {
         resetAgent();
         resetWorld();
         resetQTable();
+        int rewardCollected=0;
         for (int step = 1; step <= 500; step++){
-            run(Policy.PRANDOM, LearningType.QLEARNING, step);
+            rewardCollected += run(Policy.PRANDOM, LearningType.QLEARNING, step);
             if (isGoalState()){
                 System.out.println("REACHED GOAL STATE");
                 resetWorld();
             }
         }
         for (int step = 501; step <= 6000; step++){
-            run(Policy.PGREEDY, LearningType.QLEARNING, step);
+            rewardCollected += run(Policy.PGREEDY, LearningType.QLEARNING, step);
             if (isGoalState()){
                 System.out.println("REACHED GOAL STATE");
                 resetWorld();
             }
         }
+        System.out.println("REWARD COLLECTED " + rewardCollected);
         printAllQTables();
     }
 
@@ -370,20 +363,23 @@ public class QGridWorld {
         resetAgent();
         resetWorld();
         resetQTable();
+        int rewardCollected = 0;
         for (int step = 1; step <= 500; step++){
-            run(Policy.PRANDOM, LearningType.SARSA, step);
+            rewardCollected += run(Policy.PRANDOM, LearningType.SARSA, step);
             if (isGoalState()){
                 System.out.println("REACHED GOAL STATE");
                 resetWorld();
             }
         }
         for (int step = 501; step <= 6000; step++){
-            run(Policy.PEXPLOIT, LearningType.SARSA, step);
+            rewardCollected += run(Policy.PEXPLOIT, LearningType.SARSA, step);
             if (isGoalState()){
                 System.out.println("REACHED GOAL STATE");
                 resetWorld();
             }
         }
+        System.out.println("REWARD COLLECTED " + rewardCollected);
+
         printAllQTables();
     }
 
@@ -403,36 +399,106 @@ public class QGridWorld {
             run(Policy.PEXPLOIT, LearningType.QLEARNING, step);
             if (isGoalState()){
                 System.out.println("REACHED GOAL STATE");
-                resetWorld();
-            }
+                resetWorld(); }
         }
         printAllQTables();
     }
 
+    public void customExperiment(float alpha, float gamma){
+        int rewardCollected = 0;
+        setLearningParameters(alpha, gamma);
+        resetAgent();
+        resetWorld();
+        resetQTable();
+        for (int step = 1; step <= 500; step++){
+            rewardCollected += run(Policy.PRANDOM, LearningType.SARSA, step);
+            if (isGoalState()){
+                System.out.println("REACHED GOAL STATE");
+                resetWorld();
+            }
+        }
+        for (int step = 501; step <= 6000; step++){
+            rewardCollected += run(Policy.PGREEDY, LearningType.SARSA, step);
+            if (isGoalState()){
+                System.out.println("REACHED GOAL STATE");
+                resetWorld();
+            }
+        }
+        System.out.println("REWARD COLLECTED " + rewardCollected);
+//        printAllQTables();
+    }
+
     //run one step under provided policy and learning type
-    public void run(Policy policy, LearningType learning_type, int step){
+    public int run(Policy policy, LearningType learning_type, int step){
+        //returns a collected reward
         int temp_i = i; //save current values of i, j, x to update Q(a,s)
         int temp_j = j;
         int temp_x = x;
-        ArrayList<Operator> ops = availableOperators(i, j, x); //find Q(a,s) with i, j, x
-        Operator op = agent.chooseOperator(ops, policy); //choose operator based on provided policy
-        float qValue = getQValue(temp_i, temp_j, temp_x, op.opType);
-        int reward = getReward(op.opType);
-        applyOperator(op);
-        ArrayList<Operator> opsPrime = availableOperators(i, j, x); //find Q(a',s') with new i, j, x
-        Operator opPrime = agent.chooseOperator(opsPrime, Policy.PGREEDY); //choose max(Q(a',s')) with PGreedy
-        float qValuePrime = getQValue(i, j, x, opPrime.opType);
         if(learning_type == LearningType.SARSA){
+            ArrayList<Operator> ops = availableOperators(i, j, x); //find Q(a,s) with i, j, x
+            Operator op = agent.chooseOperator(ops, policy); //choose operator based on provided policy
+            float qValue = getQValue(i, j, x, op.opType);
+            int reward = getReward(op.opType);
+            applyOperator(op);
+            ArrayList<Operator> opsPrime = availableOperators(i, j, x); //find Q(a',s') with new i, j, x
+            Operator opPrime = agent.chooseOperator(opsPrime, Policy.PGREEDY); //choose max(Q(a',s')) with PGreedy
+            float qValuePrime = getQValue(i, j, x, opPrime.opType);
             qValue = calculateQValueSARSA(qValue, qValuePrime, reward);
+            updateQValue(temp_i, temp_j, temp_x, qValue, op.opType);
+            printStep(step, op, temp_i, temp_j, temp_x, qValue);
+            return reward;
         }
         else{
+            ArrayList<Operator> ops = availableOperators(i, j, x); //find Q(a,s) with i, j, x
+            Operator op = agent.chooseOperator(ops, policy); //choose operator based on provided policy
+            float qValue = getQValue(i, j, x, op.opType);
+            int reward = getReward(op.opType);
+            applyOperator(op);
+            ArrayList<Operator> opsPrime = availableOperators(i, j, x); //find Q(a',s') with new i, j, x
+            Operator opPrime = agent.chooseOperator(opsPrime, Policy.PGREEDY); //choose max(Q(a',s')) with PGreedy
+            float qValuePrime = getQValue(i, j, x, opPrime.opType);
             qValue = calculateQValue(qValue, qValuePrime, reward);
+            updateQValue(temp_i, temp_j, temp_x, qValue, op.opType);
+            printStep(step, op, temp_i, temp_j, temp_x, qValue);
+            return reward;
         }
-        updateQValue(temp_i, temp_j, temp_x, qValue, op.opType);
-        printStep(step, op, temp_i, temp_j, temp_x, qValue);
     }
+//
+    public void runDemo(Policy policy){
+       //This function runs the agent until it reaches goal state
+        int count = 1;
+        resetAgent();
+        resetWorld();
+        GUI gui = new GUI(this);
+        gui.updateWallEPosition(i, j);
 
-    private void initGUI(){
-        gui = new GUI(this);
+        while(!isGoalState()){
+            ArrayList<Operator> ops = availableOperators(i,j,x);
+            Operator op = agent.chooseOperator(ops, policy);
+            float qValue = getQValue(i,j,x, op.opType);
+
+            applyOperator(op);
+
+            printStep(count, op, i,j,x, qValue);
+            count+=1;
+
+            //GUI
+            if(op.opType == OperatorType.PICK){
+                gui.wallEPickup();
+                gui.updatePickupPackage(pdWorld[i][j]);
+            } else if(op.opType == OperatorType.DROP) {
+                gui.wallEDropoff();
+                gui.updateDropoffPackage(pdWorld[i][j]);
+            } else {
+                gui.updateWallEPosition(i, j);
+            }
+
+            try{
+                TimeUnit.MILLISECONDS.sleep(100);
+            } catch(InterruptedException e){
+                System.out.println(e);
+            }
+        }
+        System.out.println("REACHED GOAL STATE");
     }
 }
