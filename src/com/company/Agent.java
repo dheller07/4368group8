@@ -36,7 +36,7 @@ public class Agent {
 
     private GridWorld.Operator PExploitPolicy(ArrayList<GridWorld.Operator> ops){
         int rand_int = random_generator.nextInt();
-        float maxQvalue = ops.get(0).qTableValue;
+        double maxQvalue = ops.get(0).qTableValue;
         ArrayList<GridWorld.Operator> choice_ops = new ArrayList<>(); //Select subset of ops to return from
 
         for(int i = 0; i < ops.size(); i++){
@@ -67,12 +67,10 @@ public class Agent {
             System.out.println("SIZE " + choice_ops.size());
             throw e;
         }
-
-
     }
 
     private GridWorld.Operator PGreedyPolicy(ArrayList<GridWorld.Operator> ops){
-        float maxQvalue = ops.get(0).qTableValue;
+        double maxQvalue = ops.get(0).qTableValue;
         int maxIndex = 0;
         ArrayList<GridWorld.Operator> choice_ops = new ArrayList<>(); //Select subset of ops to return from
 

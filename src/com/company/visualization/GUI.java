@@ -112,16 +112,16 @@ public class GUI {
     private void updateQValueInButton(GridWorld.Operator op){
         switch (op.opType){
             case NORTH:
-                buttons[x-1][y].setText(Float.toString(op.qTableValue));
+                buttons[x-1][y].setText(Double.toString(op.qTableValue));
                 break;
             case SOUTH:
-                buttons[x+1][y].setText(Float.toString(op.qTableValue));
+                buttons[x+1][y].setText(Double.toString(op.qTableValue));
                 break;
             case WEST:
-                buttons[x][y-1].setText(Float.toString(op.qTableValue));
+                buttons[x][y-1].setText(Double.toString(op.qTableValue));
                 break;
             case EAST:
-                buttons[x][y+1].setText(Float.toString(op.qTableValue));
+                buttons[x][y+1].setText(Double.toString(op.qTableValue));
                 break;
             default:
                 break;

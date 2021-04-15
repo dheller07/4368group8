@@ -4,6 +4,7 @@ import com.company.visualization.GUI;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+import java.math.*;
 
 public class GridWorld {
     public static int BOUNDARY = 5;
@@ -43,13 +44,13 @@ public class GridWorld {
 
     public class Operator {
         public OperatorType opType;
-        public float qTableValue;
+        public double qTableValue;
     }
 
     public int[][] pdWorld = new int[5][5];
-    public float[][] qTable = new float[50][6]; // 50 states; 6 actions: North, West, South, East, Pickup, Dropoff
+    public double[][] qTable = new double[50][6]; // 50 states; 6 actions: North, West, South, East, Pickup, Dropoff
     public CellType[][] cellType = new CellType[5][5];
-    float alpha, gamma;
+    double alpha, gamma;
     int i, j, x, a, b, c, d, e, f;
 
     public GridWorld(){
@@ -92,7 +93,7 @@ public class GridWorld {
         updateStatesToLetter();
     }
 
-    public void setLearningParameters(float alpha, float gamma){
+    public void setLearningParameters(double alpha, double gamma){
         this.alpha = alpha;
         this.gamma = gamma;
     }
@@ -129,24 +130,36 @@ public class GridWorld {
         }
     }
 
-    public float getQValue(int i, int j, int x, OperatorType op){
+    public double getQValue(int i, int j, int x, OperatorType op){
         int stateIndex = i * 5 + j + x * 25;
-        float qValue = qTable[stateIndex][op.index];
+        double qValue = qTable[stateIndex][op.index];
         return qValue;
     }
 
-    public void updateQValue(int i, int j, int x, float qValue, OperatorType op){
+    public double getMaxQValueAtState(int i, int j, int x){
+        int stateIndex = i * 5 + j + x * 25;
+        double maxQvalue = qTable[stateIndex][0];
+        for(int k = 0;k<6;k++){
+            if(qTable[stateIndex][k] > maxQvalue){
+                maxQvalue = qTable[stateIndex][k];
+            }
+        }
+
+        return maxQvalue;
+    }
+
+    public void updateQValue(int i, int j, int x, double qValue, OperatorType op){
         int stateIndex = i * 5 + j + x * 25;
         qTable[stateIndex][op.index] = qValue;
     }
 
-    public int getReward(OperatorType op){
+    public double getReward(OperatorType op){
         switch(op){
             case DROP:
             case PICK:
-                return 13;
+                return 13.0f;
             default:
-                return -1;
+                return -1.0f;
         }
     }
 
@@ -254,11 +267,11 @@ public class GridWorld {
         }
     }
 
-    public float calculateQValue(float q, float qPrime, int reward){
-        return (1 - alpha) * q + alpha * (reward + gamma * qPrime);
+    public double calculateQValue(double q, double qPrime, double reward){
+        return (1.0d - alpha) * q + alpha * ( reward + gamma * qPrime);
     }
 
-    public float calculateQValueSARSA(float q, float qPrime, int reward) {
+    public double calculateQValueSARSA(double q, double qPrime, double reward) {
         return q + alpha * (reward + gamma * qPrime - q);
     }
 
@@ -270,7 +283,7 @@ public class GridWorld {
         return a == 4 && b == 4 && c == 4 && f == 4 && d == 0 && e == 0;
     }
 
-    public void printStep(int step, Operator op, int temp_i, int temp_j, int temp_x, float qValue){
+    public void printStep(int step, Operator op, int temp_i, int temp_j, int temp_x, double qValue){
         System.out.print("STEP = " + step + " ");
         System.out.print("ACTION -> " + op.opType.toString() + " (i=" + temp_i + ", j=" + temp_j + ", x = " + temp_x + ")");
         System.out.println(" qValue = " + qValue);
@@ -313,7 +326,7 @@ public class GridWorld {
     }
 
     public void runExperimentOneB(){
-        setLearningParameters(0.3f, 0.5f);
+        setLearningParameters(0.5d, 0.5d);
         resetAgent();
         resetWorld();
         resetQTable();
@@ -404,7 +417,7 @@ public class GridWorld {
         printAllQTables();
     }
 
-    public void customExperiment(float alpha, float gamma){
+    public void customExperiment(double alpha, double gamma){
         int rewardCollected = 0;
         setLearningParameters(alpha, gamma);
         resetAgent();
@@ -429,7 +442,7 @@ public class GridWorld {
     }
 
     //run one step under provided policy and learning type
-    public int run(Policy policy, LearningType learning_type, int step){
+    public double run(Policy policy, LearningType learning_type, int step){
         //returns a collected reward
         int temp_i = i; //save current values of i, j, x to update Q(a,s)
         int temp_j = j;
@@ -437,28 +450,31 @@ public class GridWorld {
         if(learning_type == LearningType.SARSA){
             ArrayList<Operator> ops = availableOperators(i, j, x); //find Q(a,s) with i, j, x
             Operator op = agent.chooseOperator(ops, policy); //choose operator based on provided policy
-            float qValue = getQValue(i, j, x, op.opType);
-            int reward = getReward(op.opType);
+            double qValue = getQValue(i, j, x, op.opType);
+            double reward = getReward(op.opType);
             applyOperator(op);
             ArrayList<Operator> opsPrime = availableOperators(i, j, x); //find Q(a',s') with new i, j, x
-            Operator opPrime = agent.chooseOperator(opsPrime, Policy.PGREEDY); //choose max(Q(a',s')) with PGreedy
-            float qValuePrime = getQValue(i, j, x, opPrime.opType);
-            qValue = calculateQValueSARSA(qValue, qValuePrime, reward);
-            updateQValue(temp_i, temp_j, temp_x, qValue, op.opType);
+            Operator opPrime = agent.chooseOperator(opsPrime, policy); //choose max(Q(a',s')) with PGreedy
+            double qValuePrime = getQValue(i, j, x, opPrime.opType);
+            double newQValue = calculateQValueSARSA(qValue, qValuePrime, reward);
+            updateQValue(temp_i, temp_j, temp_x, newQValue, op.opType);
             printStep(step, op, temp_i, temp_j, temp_x, qValue);
             return reward;
         }
         else{
             ArrayList<Operator> ops = availableOperators(i, j, x); //find Q(a,s) with i, j, x
             Operator op = agent.chooseOperator(ops, policy); //choose operator based on provided policy
-            float qValue = getQValue(i, j, x, op.opType);
-            int reward = getReward(op.opType);
+            double qValue = getQValue(i, j, x, op.opType);
+            double reward = getReward(op.opType);
             applyOperator(op);
-            ArrayList<Operator> opsPrime = availableOperators(i, j, x); //find Q(a',s') with new i, j, x
-            Operator opPrime = agent.chooseOperator(opsPrime, Policy.PGREEDY); //choose max(Q(a',s')) with PGreedy
-            float qValuePrime = getQValue(i, j, x, opPrime.opType);
-            qValue = calculateQValue(qValue, qValuePrime, reward);
-            updateQValue(temp_i, temp_j, temp_x, qValue, op.opType);
+            double qValueMax = getMaxQValueAtState(i, j, x);
+            double newQValue = calculateQValue(qValue, qValueMax, reward);
+            if (Double.compare(qValue, newQValue) == 0) {
+               System.out.println("This is wrong");
+            } else{
+                System.out.println("OKAY");
+            }
+            updateQValue(temp_i, temp_j, temp_x, newQValue, op.opType);
             printStep(step, op, temp_i, temp_j, temp_x, qValue);
             return reward;
         }
@@ -469,13 +485,14 @@ public class GridWorld {
         int count = 1;
         resetAgent();
         resetWorld();
+        resetQTable();
         GUI gui = new GUI(this);
         gui.updateWallEPosition(i, j);
 
         while(!isGoalState()){
             ArrayList<Operator> ops = availableOperators(i,j,x);
             Operator op = agent.chooseOperator(ops, policy);
-            float qValue = getQValue(i,j,x, op.opType);
+            double qValue = getQValue(i,j,x, op.opType);
 
             applyOperator(op);
 
