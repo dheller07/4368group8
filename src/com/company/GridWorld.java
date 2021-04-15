@@ -51,6 +51,7 @@ public class GridWorld {
     public CellType[][] cellType = new CellType[5][5];
     float alpha, gamma;
     int i, j, x, a, b, c, d, e, f;
+    boolean moved_start_point;
 
     public GridWorld(){
         initWorld();
@@ -71,6 +72,7 @@ public class GridWorld {
         d = 8; //pickup cell
         e = 8; //pickup cell
         f = 0; //dropoff cell
+        moved_start_point = false;
 
         for(int i = 0; i < 5; i++){
             for(int j = 0; j < 5; j++){
@@ -88,8 +90,6 @@ public class GridWorld {
         //Initial number of blocks in each pickup cell
         pdWorld[2][4] = 8;
         pdWorld[3][1] = 8;
-
-        updateStatesToLetter();
     }
 
     public void setLearningParameters(float alpha, float gamma){
@@ -115,6 +115,41 @@ public class GridWorld {
         }
         pdWorld[2][4] = 8;
         pdWorld[3][1] = 8;
+    }
+
+    public void resetWorldExperimentFour(){
+
+        for(int i = 0; i < 5; i++){
+            for(int j = 0; j < 5; j++){
+                pdWorld[i][j] = 0;
+                cellType[i][j] = CellType.NORMAL;
+            }
+        }
+        cellType[0][0] = CellType.DROPOFF;
+        cellType[0][4] = CellType.DROPOFF;
+        cellType[2][2] = CellType.DROPOFF;
+        cellType[4][4] = CellType.DROPOFF;
+        cellType[2][0] = CellType.PICKUP;
+        cellType[0][2] = CellType.PICKUP;
+
+        i = 4;
+        j = 0;
+        x = 0;
+        a = 0;
+        b = 0;
+        c = 0;
+        d = 8;
+        e = 8;
+        f = 0;
+        for(int i = 0; i < 5; i++){
+            for(int j = 0; j < 5; j++){
+                pdWorld[i][j] = 0;
+            }
+        }
+        pdWorld[2][0] = 8;
+        pdWorld[0][2] = 8;
+
+        moved_start_point = true;
     }
 
     public void resetAgent(){
@@ -201,9 +236,15 @@ public class GridWorld {
         a = pdWorld[0][0];
         b = pdWorld[0][4];
         c = pdWorld[2][2];
-        d = pdWorld[2][4];
-        e = pdWorld[3][1];
         f = pdWorld[4][4];
+        if (moved_start_point){
+            d = pdWorld[2][0];
+            e = pdWorld[0][2];
+        }
+        else{
+            d = pdWorld[2][4];
+            e = pdWorld[3][1];
+        }
     }
 
     public boolean drop(int i, int j, int x){
@@ -255,7 +296,7 @@ public class GridWorld {
     }
 
     public float calculateQValue(float q, float qPrime, int reward){
-        return (1 - alpha) * q + alpha * (reward + gamma * qPrime);
+        return (1.0f - alpha) * q + alpha * (reward + gamma * qPrime);
     }
 
     public float calculateQValueSARSA(float q, float qPrime, int reward) {
@@ -383,8 +424,8 @@ public class GridWorld {
         printAllQTables();
     }
 
-    public void runExperimentThree(){
-        setLearningParameters(0.15f, 0.45f);
+    public void runExperimentThreeA(){
+        setLearningParameters(0.15f, 0.5f);
         resetAgent();
         resetWorld();
         resetQTable();
@@ -400,6 +441,55 @@ public class GridWorld {
             if (isGoalState()){
                 System.out.println("REACHED GOAL STATE");
                 resetWorld(); }
+        }
+        printAllQTables();
+    }
+
+    public void runExperimentThreeB(){
+        setLearningParameters(0.45f, 0.5f);
+        resetAgent();
+        resetWorld();
+        resetQTable();
+        for (int step = 1; step <= 500; step++){
+            run(Policy.PRANDOM, LearningType.QLEARNING, step);
+            if (isGoalState()){
+                System.out.println("REACHED GOAL STATE");
+                resetWorld();
+            }
+        }
+        for (int step = 501; step <= 6000; step++){
+            run(Policy.PEXPLOIT, LearningType.QLEARNING, step);
+            if (isGoalState()){
+                System.out.println("REACHED GOAL STATE");
+                resetWorld(); }
+        }
+        printAllQTables();
+    }
+
+    public void runExperimentFour(){
+        setLearningParameters(0.3f, 0.5f);
+        resetAgent();
+        resetWorld();
+        resetQTable();
+        int terminal_state_count = 0;
+        for (int step = 1; step <= 500; step++){
+            run(Policy.PRANDOM, LearningType.QLEARNING, step);
+            if (isGoalState()){
+                System.out.println("REACHED GOAL STATE");
+                resetWorld();
+            }
+        }
+        for (int step = 501; step <= 6000; step++){
+            run(Policy.PEXPLOIT, LearningType.QLEARNING, step);
+            if (isGoalState()){
+                System.out.println("REACHED GOAL STATE");
+                if (terminal_state_count >= 2){
+                    resetWorldExperimentFour();
+                }
+                else{
+                    resetWorld();
+                }
+            }
         }
         printAllQTables();
     }
