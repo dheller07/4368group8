@@ -1,9 +1,10 @@
 package com.company.visualization;
 
-import com.company.QGridWorld;
-
+import com.company.GridWorld;
 import javax.swing.*;
 import java.awt.*;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 
 public class GUI {
 
@@ -13,10 +14,12 @@ public class GUI {
     ImageIcon packageImage;
     boolean isCarrying = false;
     JButton[][] buttons;
+
+    ArrayList<GridWorld.Operator> operators;
     int x;
     int y;
 
-    public GUI(QGridWorld QGridWorld){
+    public GUI(GridWorld GridWorld){
         frame = new JFrame();
         wallEImage = createImageIcon("res/walle.png");
         packageImage = createImageIcon("res/package.png");
@@ -28,10 +31,10 @@ public class GUI {
         for(int i = 0;i<5;i++){
             for(int j = 0;j<5;j++){
                 JButton button = new JButton();
-                if(QGridWorld.cellType[i][j] == com.company.QGridWorld.CellType.PICKUP){
+                if(GridWorld.cellType[i][j] == com.company.GridWorld.CellType.PICKUP){
                     button.setText("PICKUP (8)");
                     frame.add(button);
-                } else if(QGridWorld.cellType[i][j] == com.company.QGridWorld.CellType.DROPOFF){
+                } else if(GridWorld.cellType[i][j] == com.company.GridWorld.CellType.DROPOFF){
                     button.setText("DROPOFF (0)");
                     frame.add(button);
                 } else {
@@ -85,5 +88,62 @@ public class GUI {
     }
     public void updateDropoffPackage(int value){
         buttons[x][y].setText("DROPOFF (" + Integer.toString(value) + ")");
+    }
+
+    private void resetQValueInButton(GridWorld.Operator op){
+       switch (op.opType){
+           case NORTH:
+               buttons[x-1][y].setText("");
+               break;
+           case SOUTH:
+               buttons[x+1][y].setText("");
+               break;
+           case WEST:
+               buttons[x][y-1].setText("");
+               break;
+           case EAST:
+               buttons[x][y+1].setText("");
+               break;
+           default:
+               break;
+       }
+    }
+
+    private void updateQValueInButton(GridWorld.Operator op){
+        switch (op.opType){
+            case NORTH:
+                buttons[x-1][y].setText(Float.toString(op.qTableValue));
+                break;
+            case SOUTH:
+                buttons[x+1][y].setText(Float.toString(op.qTableValue));
+                break;
+            case WEST:
+                buttons[x][y-1].setText(Float.toString(op.qTableValue));
+                break;
+            case EAST:
+                buttons[x][y+1].setText(Float.toString(op.qTableValue));
+                break;
+            default:
+                break;
+        }
+    }
+
+    public void resetButtonsQValue(){
+        //reset button text
+        if(operators!=null){
+            for(GridWorld.Operator op : operators){
+                resetQValueInButton(op);
+            }
+            operators.clear();
+        }
+    }
+
+
+    public void updateAvailableOperatorValues(ArrayList<GridWorld.Operator> ops){
+        for(GridWorld.Operator op: ops){
+            updateQValueInButton(op);
+        }
+
+        this.operators = ops;
     }
 }
