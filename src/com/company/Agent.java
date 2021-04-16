@@ -12,10 +12,10 @@ public class Agent {
 
     private double[][][][] q_table;
     private double alpha, gamma;
-    private learning_type learn_type;
+    private learning_type learn;
     private Random random_generator;
 
-    public Agent(double alpha, double gamma, learning_type learn_type){
+    public Agent(double alpha, double gamma, learning_type learn){
         q_table = new double[5][5][2][6];
         for (int i = 0; i <= 4; i++){
             for (int j = 0; j <= 4; j++){
@@ -28,35 +28,64 @@ public class Agent {
         }
         this.alpha = alpha;
         this.gamma = gamma;
-        this.learn_type = learn_type;
+        this.learn = learn;
         random_generator = new Random(System.currentTimeMillis());
+    }
+
+    public learning_type getLearningType(){
+        return learn;
     }
 
     public void updateQValue(int i, int j, int x, int a, int b, int c, int d, int e, int f, boolean reset, Operator op){
         switch (op.getOpType()){
             case NORTH:
-                q_table[i][j][x][0] = (1 - alpha) * q_table[i][j][x][0] + alpha * (op.getReward()
+                q_table[i][j][x][0] = (1 - alpha) * op.getQValue() + alpha * (op.getReward()
                         + gamma * pMaxQValue(applicableOperators(i - 1, j, x, a, b, c, d, e, f, reset)).getQValue());
                 break;
             case EAST:
-                q_table[i][j][x][1] = (1 - alpha) * q_table[i][j][x][1] + alpha * (op.getReward()
+                q_table[i][j][x][1] = (1 - alpha) * op.getQValue() + alpha * (op.getReward()
                         + gamma * pMaxQValue(applicableOperators(i, j + 1, x, a, b, c, d, e, f, reset)).getQValue());
                 break;
             case SOUTH:
-                q_table[i][j][x][2] = (1 - alpha) * q_table[i][j][x][2] + alpha * (op.getReward()
+                q_table[i][j][x][2] = (1 - alpha) * op.getQValue() + alpha * (op.getReward()
                         + gamma * pMaxQValue(applicableOperators(i + 1, j, x, a, b, c, d, e, f, reset)).getQValue());
                 break;
             case WEST:
-                q_table[i][j][x][3] = (1 - alpha) * q_table[i][j][x][3] + alpha * (op.getReward()
+                q_table[i][j][x][3] = (1 - alpha) * op.getQValue() + alpha * (op.getReward()
                         + gamma * pMaxQValue(applicableOperators(i, j - 1, x, a, b, c, d, e, f, reset)).getQValue());
                 break;
             case PICKUP:
-                q_table[i][j][x][4] = (1 - alpha) * q_table[i][j][x][4] + alpha * (op.getReward()
+                q_table[i][j][x][4] = (1 - alpha) * op.getQValue() + alpha * (op.getReward()
                         + gamma * pMaxQValue(applicableOperators(i, j, x + 1, a, b, c, d, e, f, reset)).getQValue());
                 break;
             case DROPOFF:
-                q_table[i][j][x][5] = (1 - alpha) * q_table[i][j][x][5] + alpha * (op.getReward()
+                q_table[i][j][x][5] = (1 - alpha) * op.getQValue() + alpha * (op.getReward()
                         + gamma * pMaxQValue(applicableOperators(i, j, x - 1, a, b, c, d, e, f, reset)).getQValue());
+                break;
+            default:
+                System.out.println("ERROR: No operator provided");
+        }
+    }
+
+    public void updateQValueSarsa(int i, int j, int x, Operator op, Operator op_prime){
+        switch (op.getOpType()){
+            case NORTH:
+                q_table[i][j][x][0] = op.getQValue() + alpha * (op.getReward() + gamma * op_prime.getQValue() - op.getQValue());
+                break;
+            case EAST:
+                q_table[i][j][x][1] = op.getQValue() + alpha * (op.getReward() + gamma * op_prime.getQValue() - op.getQValue());
+                break;
+            case SOUTH:
+                q_table[i][j][x][2] = op.getQValue() + alpha * (op.getReward() + gamma * op_prime.getQValue() - op.getQValue());
+                break;
+            case WEST:
+                q_table[i][j][x][3] = op.getQValue() + alpha * (op.getReward() + gamma * op_prime.getQValue() - op.getQValue());
+                break;
+            case PICKUP:
+                q_table[i][j][x][4] = op.getQValue() + alpha * (op.getReward() + gamma * op_prime.getQValue() - op.getQValue());
+                break;
+            case DROPOFF:
+                q_table[i][j][x][5] = op.getQValue() + alpha * (op.getReward() + gamma * op_prime.getQValue() - op.getQValue());
                 break;
             default:
                 System.out.println("ERROR: No operator provided");

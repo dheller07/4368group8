@@ -6,7 +6,8 @@ public class GridWorld {
 
     private int i, j, x, a, b, c, d, e, f;
     private boolean reset_pickup;
-    private Agent Agent;
+    private Operator prev_op;
+    private Agent agent;
 
     enum policy {
         PRANDOM,
@@ -17,7 +18,8 @@ public class GridWorld {
     public GridWorld() {
         initWorld();
         reset_pickup = false;
-        Agent = null;
+        prev_op = null;
+        agent = null;
     }
 
     public void initWorld() {
@@ -93,170 +95,204 @@ public class GridWorld {
         return a == 4 && b == 4 && c == 4 && d == 0 && e == 0 && f == 4;
     }
 
-    public Operator run(policy p) {
-        ArrayList<Operator> op_list = Agent.applicableOperators(i, j, x, a, b, c, d, e, f, reset_pickup);
+    public void run(policy p) {
+        ArrayList<Operator> op_list = agent.applicableOperators(i, j, x, a, b, c, d, e, f, reset_pickup);
         Operator op = null;
         switch (p) {
             case PRANDOM:
-                op = Agent.pRandom(op_list);
+                op = agent.pRandom(op_list);
                 break;
             case PGREEDY:
-                op = Agent.pGreedy(op_list);
+                op = agent.pGreedy(op_list);
                 break;
             case PEXPLOIT:
-                op = Agent.pExploit(op_list);
+                op = agent.pExploit(op_list);
                 break;
             default:
                 System.out.println("ERROR: Policy not provided");
         }
-        Agent.updateQValue(i, j, x, a, b, c, d, e, f, reset_pickup, op);
+        if (agent.getLearningType() == Agent.learning_type.SARSA){
+            if (prev_op != null){
+                agent.updateQValueSarsa(i, j, x, prev_op, op);
+            }
+        }
+        else{
+            agent.updateQValue(i, j, x, a, b, c, d, e, f, reset_pickup, op);
+        }
         applyOperator(op);
-        return op;
+        prev_op = op;
     }
 
     public void experiment1A() {
-        Agent = new Agent(0.3, 0.5, com.company.Agent.learning_type.QLEARNING);
+        agent = new Agent(0.3, 0.5, Agent.learning_type.QLEARNING);
         int reward = 0;
         for (int z = 1; z < 6000; z++) {
-            Operator op = run(policy.PRANDOM);
-            reward += op.getReward();
+            run(policy.PRANDOM);
+            reward += prev_op.getReward();
             if (isGoalState()) {
                 System.out.println("Goal state reached.");
                 initWorld();
             }
             System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
-                    i, j, x, a, b, c, d, e, f, op.getOpType().toString(), op.getQValue());
+                    i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
         }
-        Agent.printAllQTables();
+        agent.printAllQTables();
         System.out.format("Reward: %d\n", reward);
     }
 
     public void experiment1B() {
-        Agent = new Agent(0.3, 0.5, com.company.Agent.learning_type.QLEARNING);
+        agent = new Agent(0.3, 0.5, Agent.learning_type.QLEARNING);
         int reward = 0;
         for (int z = 1; z < 500; z++) {
-            Operator op = run(policy.PRANDOM);
-            reward += op.getReward();
+            run(policy.PRANDOM);
+            reward += prev_op.getReward();
             if (isGoalState()) {
                 System.out.println("Goal state reached.");
                 initWorld();
             }
             System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
-                    i, j, x, a, b, c, d, e, f, op.getOpType().toString(), op.getQValue());
+                    i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
         }
         for (int z = 501; z < 6000; z++) {
-            Operator op = run(policy.PGREEDY);
-            reward += op.getReward();
+            run(policy.PGREEDY);
+            reward += prev_op.getReward();
             if (isGoalState()) {
                 System.out.println("Goal state reached.");
                 initWorld();
             }
             System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
-                    i, j, x, a, b, c, d, e, f, op.getOpType().toString(), op.getQValue());
+                    i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
         }
-        Agent.printAllQTables();
+        agent.printAllQTables();
         System.out.format("Reward: %d\n", reward);
     }
 
     public void experiment1C() {
-        Agent = new Agent(0.3, 0.5, com.company.Agent.learning_type.QLEARNING);
+        agent = new Agent(0.3, 0.5, Agent.learning_type.QLEARNING);
         int reward = 0;
         for (int z = 1; z < 500; z++) {
-            Operator op = run(policy.PRANDOM);
-            reward += op.getReward();
+            run(policy.PRANDOM);
+            reward += prev_op.getReward();
             if (isGoalState()) {
                 System.out.println("Goal state reached.");
                 initWorld();
             }
             System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
-                    i, j, x, a, b, c, d, e, f, op.getOpType().toString(), op.getQValue());
+                    i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
         }
         for (int z = 501; z < 6000; z++) {
-            Operator op = run(policy.PEXPLOIT);
-            reward += op.getReward();
+            run(policy.PEXPLOIT);
+            reward += prev_op.getReward();
             if (isGoalState()) {
                 System.out.println("Goal state reached.");
                 initWorld();
             }
             System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
-                    i, j, x, a, b, c, d, e, f, op.getOpType().toString(), op.getQValue());
+                    i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
         }
-        Agent.printAllQTables();
+        agent.printAllQTables();
+        System.out.format("Reward: %d\n", reward);
+    }
+
+    public void experiment2() {
+        agent = new Agent(0.3, 0.5, Agent.learning_type.SARSA);
+        int reward = 0;
+        for (int z = 1; z < 500; z++) {
+            run(policy.PRANDOM);
+            reward += prev_op.getReward();
+            if (isGoalState()) {
+                System.out.println("Goal state reached.");
+                initWorld();
+            }
+            System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
+                    i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
+        }
+        for (int z = 501; z < 6000; z++) {
+            run(policy.PEXPLOIT);
+            reward += prev_op.getReward();
+            if (isGoalState()) {
+                System.out.println("Goal state reached.");
+                initWorld();
+            }
+            System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
+                    i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
+        }
+        agent.printAllQTables();
         System.out.format("Reward: %d\n", reward);
     }
 
     public void experiment3A() {
-        Agent = new Agent(0.15, 0.5, com.company.Agent.learning_type.QLEARNING);
+        agent = new Agent(0.15, 0.5, Agent.learning_type.QLEARNING);
         int reward = 0;
         for (int z = 1; z < 500; z++) {
-            Operator op = run(policy.PRANDOM);
-            reward += op.getReward();
+            run(policy.PRANDOM);
+            reward += prev_op.getReward();
             if (isGoalState()) {
                 System.out.println("Goal state reached.");
                 initWorld();
             }
             System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
-                    i, j, x, a, b, c, d, e, f, op.getOpType().toString(), op.getQValue());
+                    i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
         }
         for (int z = 501; z < 6000; z++) {
-            Operator op = run(policy.PEXPLOIT);
-            reward += op.getReward();
+            run(policy.PEXPLOIT);
+            reward += prev_op.getReward();
             if (isGoalState()) {
                 System.out.println("Goal state reached.");
                 initWorld();
             }
             System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
-                    i, j, x, a, b, c, d, e, f, op.getOpType().toString(), op.getQValue());
+                    i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
         }
-        Agent.printAllQTables();
+        agent.printAllQTables();
         System.out.format("Reward: %d\n", reward);
     }
 
     public void experiment3B() {
-        Agent = new Agent(0.45, 0.5, com.company.Agent.learning_type.QLEARNING);
+        agent = new Agent(0.45, 0.5, Agent.learning_type.QLEARNING);
         int reward = 0;
         for (int z = 1; z < 500; z++) {
-            Operator op = run(policy.PRANDOM);
-            reward += op.getReward();
+            run(policy.PRANDOM);
+            reward += prev_op.getReward();
             if (isGoalState()) {
                 System.out.println("Goal state reached.");
                 initWorld();
             }
             System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
-                    i, j, x, a, b, c, d, e, f, op.getOpType().toString(), op.getQValue());
+                    i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
         }
         for (int z = 501; z < 6000; z++) {
-            Operator op = run(policy.PEXPLOIT);
-            reward += op.getReward();
+            run(policy.PEXPLOIT);
+            reward += prev_op.getReward();
             if (isGoalState()) {
                 System.out.println("Goal state reached.");
                 initWorld();
             }
             System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
-                    i, j, x, a, b, c, d, e, f, op.getOpType().toString(), op.getQValue());
+                    i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
         }
-        Agent.printAllQTables();
+        agent.printAllQTables();
         System.out.format("Reward: %d\n", reward);
     }
 
     public void experiment4() {
-        Agent = new Agent(0.3, 0.5, com.company.Agent.learning_type.QLEARNING);
+        agent = new Agent(0.3, 0.5, Agent.learning_type.QLEARNING);
         int reward = 0;
         int goal_state_count = 0;
         for (int z = 1; z < 500; z++) {
-            Operator op = run(policy.PRANDOM);
-            reward += op.getReward();
+            run(policy.PRANDOM);
+            reward += prev_op.getReward();
             if (isGoalState()) {
                 System.out.println("Goal state reached.");
                 goal_state_count++;
                 initWorld();
             }
             System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
-                    i, j, x, a, b, c, d, e, f, op.getOpType().toString(), op.getQValue());
+                    i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
         }
         for (int z = 501; z < 6000; z++) {
-            Operator op = run(policy.PEXPLOIT);
-            reward += op.getReward();
+            run(policy.PEXPLOIT);
+            reward += prev_op.getReward();
             if (isGoalState()) {
                 System.out.println("Goal state reached.");
                 goal_state_count++;
@@ -266,9 +302,9 @@ public class GridWorld {
                 initWorld();
             }
             System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
-                    i, j, x, a, b, c, d, e, f, op.getOpType().toString(), op.getQValue());
+                    i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
         }
-        Agent.printAllQTables();
+        agent.printAllQTables();
         System.out.format("Reward: %d\n", reward);
     }
 }
