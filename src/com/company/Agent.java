@@ -133,6 +133,19 @@ public class Agent {
         printQTable(Operator.operator_type.DROPOFF);
     }
 
+    public void printPathTables(int a, int b, int c, int d, int e, int f, boolean reset){
+        for (int x = 0; x <= 1; x++){
+            System.out.format("Attractive paths for agent with %d blocks:\n\n", x);
+            for (int i = 0; i <= 4; i++){
+                for (int j = 0; j <= 4; j++){
+                    Operator max_op = pMaxQValue(applicableOperators(i, j, x, a, b, c, d, e, f, reset));
+                    System.out.format("%s  ", max_op.getOpType().toString());
+                }
+                System.out.print("\n\n");
+            }
+        }
+    }
+
     public ArrayList<Operator> applicableOperators(int i, int j, int x, int a, int b, int c, int d, int e, int f, boolean reset){
         ArrayList<Operator> apl_op = new ArrayList<>();
         if (i > 0){

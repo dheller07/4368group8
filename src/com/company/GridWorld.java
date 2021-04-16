@@ -137,6 +137,7 @@ public class GridWorld {
                     i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
         }
         agent.printAllQTables();
+        agent.printPathTables(a, b, c, d, e, f, reset_pickup);
         System.out.format("Reward: %d\n", reward);
     }
 
@@ -164,6 +165,7 @@ public class GridWorld {
                     i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
         }
         agent.printAllQTables();
+        agent.printPathTables(a, b, c, d, e, f, reset_pickup);
         System.out.format("Reward: %d\n", reward);
     }
 
@@ -191,6 +193,7 @@ public class GridWorld {
                     i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
         }
         agent.printAllQTables();
+        agent.printPathTables(a, b, c, d, e, f, reset_pickup);
         System.out.format("Reward: %d\n", reward);
     }
 
@@ -218,6 +221,7 @@ public class GridWorld {
                     i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
         }
         agent.printAllQTables();
+        agent.printPathTables(a, b, c, d, e, f, reset_pickup);
         System.out.format("Reward: %d\n", reward);
     }
 
@@ -245,6 +249,7 @@ public class GridWorld {
                     i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
         }
         agent.printAllQTables();
+        agent.printPathTables(a, b, c, d, e, f, reset_pickup);
         System.out.format("Reward: %d\n", reward);
     }
 
@@ -272,6 +277,7 @@ public class GridWorld {
                     i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
         }
         agent.printAllQTables();
+        agent.printPathTables(a, b, c, d, e, f, reset_pickup);
         System.out.format("Reward: %d\n", reward);
     }
 
@@ -305,6 +311,7 @@ public class GridWorld {
                     i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
         }
         agent.printAllQTables();
+        agent.printPathTables(a, b, c, d, e, f, reset_pickup);
         System.out.format("Reward: %d\n", reward);
     }
 }
