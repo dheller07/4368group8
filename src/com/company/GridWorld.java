@@ -1,6 +1,9 @@
 package com.company;
 
+import com.company.visualization.GUI;
+
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 public class GridWorld {
 
@@ -128,6 +131,89 @@ public class GridWorld {
         prev_x = x;
         applyOperator(op);
         prev_op = op;
+    }
+
+    public void runDemo(policy p, GUI gui) {
+        ArrayList<Operator> op_list = agent.applicableOperators(i, j, x, a, b, c, d, e, f, reset_pickup);
+        Operator op = null;
+        switch (p) {
+            case PRANDOM:
+                op = agent.pRandom(op_list);
+                break;
+            case PGREEDY:
+                op = agent.pGreedy(op_list);
+                break;
+            case PEXPLOIT:
+                op = agent.pExploit(op_list);
+                break;
+            default:
+                System.out.println("ERROR: Policy not provided");
+        }
+        if (agent.getLearningType() == Agent.learning_type.SARSA){
+            if (prev_op != null){
+                agent.updateQValueSarsa(prev_i, prev_j, prev_x, prev_op, op);
+            }
+        }
+        else{
+            agent.updateQValue(i, j, x, a, b, c, d, e, f, reset_pickup, op);
+        }
+        prev_i = i;
+        prev_j = j;
+        prev_x = x;
+        applyOperator(op);
+
+        switch(op.getOpType()){
+            case PICKUP:
+                gui.wallEPickup();
+                if (i == 2 && j == 4) {
+                    gui.updatePickupPackage(d);
+                } else if (i == 3 && j == 1) {
+                    gui.updatePickupPackage(e);
+                }
+                break;
+            case DROPOFF:
+                gui.wallEDropoff();
+                if (i == 0 && j == 0) {
+                    gui.updateDropoffPackage(a);
+                } else if (i == 0 && j == 4) {
+                    gui.updateDropoffPackage(b);
+                } else if (i == 2 && j == 2) {
+                    gui.updateDropoffPackage(c);
+                } else if (i == 4 && j == 4) {
+                    gui.updateDropoffPackage(f);
+                }
+                break;
+            default:
+                gui.updateWallEPosition(i,j);
+                break;
+        }
+        prev_op = op;
+    }
+
+    public void wallEAnimation(float alpha, float gamma, policy policy, Agent.learning_type learningType){
+        agent = new Agent(alpha, gamma, learningType);
+        int reward = 0;
+        GUI gui = new GUI();
+        initWorld();
+        gui.updateWallEPosition(i,j);
+        while(true){
+            runDemo(policy, gui);
+            reward += prev_op.getReward();
+            if (isGoalState()) {
+                System.out.println("Goal state reached.");
+                break;
+            }
+            System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
+                    i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
+            try{
+                TimeUnit.MILLISECONDS.sleep(100);
+            } catch (Exception e){
+                System.out.println("Sleep was interrupted ... ");
+            }
+        }
+        agent.printAllQTables();
+        agent.printPathTables(a, b, c, d, e, f, reset_pickup);
+        System.out.format("Reward: %d\n", reward);
     }
 
     public void experiment1A() {
