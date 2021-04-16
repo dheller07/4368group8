@@ -32,31 +32,31 @@ public class Agent {
         random_generator = new Random(System.currentTimeMillis());
     }
 
-    public void updateQValue(int i, int j, int x, int a, int b, int c, int d, int e, int f, Operator op){
+    public void updateQValue(int i, int j, int x, int a, int b, int c, int d, int e, int f, boolean reset, Operator op){
         switch (op.getOpType()){
             case NORTH:
                 q_table[i][j][x][0] = (1 - alpha) * q_table[i][j][x][0] + alpha * (op.getReward()
-                        + gamma * pMaxQValue(applicableOperators(i - 1, j, x, a, b, c, d, e, f)).getQValue());
+                        + gamma * pMaxQValue(applicableOperators(i - 1, j, x, a, b, c, d, e, f, reset)).getQValue());
                 break;
             case EAST:
                 q_table[i][j][x][1] = (1 - alpha) * q_table[i][j][x][1] + alpha * (op.getReward()
-                        + gamma * pMaxQValue(applicableOperators(i, j + 1, x, a, b, c, d, e, f)).getQValue());
+                        + gamma * pMaxQValue(applicableOperators(i, j + 1, x, a, b, c, d, e, f, reset)).getQValue());
                 break;
             case SOUTH:
                 q_table[i][j][x][2] = (1 - alpha) * q_table[i][j][x][2] + alpha * (op.getReward()
-                        + gamma * pMaxQValue(applicableOperators(i + 1, j, x, a, b, c, d, e, f)).getQValue());
+                        + gamma * pMaxQValue(applicableOperators(i + 1, j, x, a, b, c, d, e, f, reset)).getQValue());
                 break;
             case WEST:
                 q_table[i][j][x][3] = (1 - alpha) * q_table[i][j][x][3] + alpha * (op.getReward()
-                        + gamma * pMaxQValue(applicableOperators(i, j - 1, x, a, b, c, d, e, f)).getQValue());
+                        + gamma * pMaxQValue(applicableOperators(i, j - 1, x, a, b, c, d, e, f, reset)).getQValue());
                 break;
             case PICKUP:
                 q_table[i][j][x][4] = (1 - alpha) * q_table[i][j][x][4] + alpha * (op.getReward()
-                        + gamma * pMaxQValue(applicableOperators(i, j, x + 1, a, b, c, d, e, f)).getQValue());
+                        + gamma * pMaxQValue(applicableOperators(i, j, x + 1, a, b, c, d, e, f, reset)).getQValue());
                 break;
             case DROPOFF:
                 q_table[i][j][x][5] = (1 - alpha) * q_table[i][j][x][5] + alpha * (op.getReward()
-                        + gamma * pMaxQValue(applicableOperators(i, j, x - 1, a, b, c, d, e, f)).getQValue());
+                        + gamma * pMaxQValue(applicableOperators(i, j, x - 1, a, b, c, d, e, f, reset)).getQValue());
                 break;
             default:
                 System.out.println("ERROR: No operator provided");
@@ -104,7 +104,7 @@ public class Agent {
         printQTable(Operator.operator_type.DROPOFF);
     }
 
-    public ArrayList<Operator> applicableOperators(int i, int j, int x, int a, int b, int c, int d, int e, int f){
+    public ArrayList<Operator> applicableOperators(int i, int j, int x, int a, int b, int c, int d, int e, int f, boolean reset){
         ArrayList<Operator> apl_op = new ArrayList<>();
         if (i > 0){
             apl_op.add(new Operator(Operator.operator_type.NORTH, getQValue(i, j, x, Operator.operator_type.NORTH)));
@@ -118,8 +118,15 @@ public class Agent {
         if (j > 0){
             apl_op.add(new Operator(Operator.operator_type.WEST, getQValue(i, j, x, Operator.operator_type.WEST)));
         }
-        if (((e > 0 && (i == 3 && j == 1)) || (d > 0 && (i == 2 && j == 4))) && x == 0){
-            apl_op.add(new Operator(Operator.operator_type.PICKUP, getQValue(i, j, x, Operator.operator_type.PICKUP)));
+        if (reset){
+            if (((e > 0 && (i == 0 && j == 2)) || (d > 0 && (i == 2 && j == 0))) && x == 0){
+                apl_op.add(new Operator(Operator.operator_type.PICKUP, getQValue(i, j, x, Operator.operator_type.PICKUP)));
+            }
+        }
+        else{
+            if (((e > 0 && (i == 3 && j == 1)) || (d > 0 && (i == 2 && j == 4))) && x == 0){
+                apl_op.add(new Operator(Operator.operator_type.PICKUP, getQValue(i, j, x, Operator.operator_type.PICKUP)));
+            }
         }
         if (((a < 4 && (i == 0 && j == 0)) || (b < 4 && (i == 0 && j == 4)) || (c < 4 && (i == 2 && j == 2))
                 || (f < 4 && (i == 4 && j == 4))) && x == 1){
