@@ -6,6 +6,7 @@ public class GridWorld {
 
     private int i, j, x, a, b, c, d, e, f;
     private boolean reset_pickup;
+    private int prev_i, prev_j, prev_x;
     private Operator prev_op;
     private Agent agent;
 
@@ -18,6 +19,9 @@ public class GridWorld {
     public GridWorld() {
         initWorld();
         reset_pickup = false;
+        prev_i = 4;
+        prev_j = 0;
+        prev_x = 0;
         prev_op = null;
         agent = null;
     }
@@ -113,12 +117,15 @@ public class GridWorld {
         }
         if (agent.getLearningType() == Agent.learning_type.SARSA){
             if (prev_op != null){
-                agent.updateQValueSarsa(i, j, x, prev_op, op);
+                agent.updateQValueSarsa(prev_i, prev_j, prev_x, prev_op, op);
             }
         }
         else{
             agent.updateQValue(i, j, x, a, b, c, d, e, f, reset_pickup, op);
         }
+        prev_i = i;
+        prev_j = j;
+        prev_x = x;
         applyOperator(op);
         prev_op = op;
     }
