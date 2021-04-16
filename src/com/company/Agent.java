@@ -160,19 +160,18 @@ public class Agent {
 
     public Operator pExploit(ArrayList<Operator> op_list){
         int rand_int = random_generator.nextInt();
+        double max_q_value = op_list.get(0).getQValue();
+        int max_index = 0;
         for (int i = 0; i < op_list.size(); i++){
             if (op_list.get(i).getOpType() == Operator.operator_type.PICKUP || op_list.get(i).getOpType() == Operator.operator_type.DROPOFF){
                 return op_list.get(i);
             }
-        }
-        double max_q_value = op_list.get(0).getQValue();
-        int max_index = 0;
-        for (int i = 0; i < op_list.size(); i++){
             if (op_list.get(i).getQValue() > max_q_value){
                 max_q_value = op_list.get(i).getQValue();
                 max_index = i;
             }
         }
+
         if (rand_int % 5 == 0){
             op_list.remove(max_index);
             return op_list.get(random_generator.nextInt(op_list.size()));
