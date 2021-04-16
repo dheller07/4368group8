@@ -4,6 +4,6 @@ public class Main {
 
     public static void main(String[] args) {
         GridWorld world = new GridWorld();
-        world.experiment4();
+        world.experiment2();
     }
 }
