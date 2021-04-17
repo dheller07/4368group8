@@ -4,7 +4,6 @@ public class Main {
 
     public static void main(String[] args) {
         GridWorld world = new GridWorld();
-//        world.wallEAnimation(0.15f, 0.8f, GridWorld.policy.PEXPLOIT, Agent.learning_type.SARSA);
 
         //Run each experiment twice
         System.out.println("########################");
@@ -56,6 +55,10 @@ public class Main {
         world.experiment4(false);
         System.out.println("Experiment 4) 2nd run");
         world.experiment4(false);
+
+
+//        //TODO: UNCOMMENT THIS TO RUN A DEMO. IT'S COOL TO SEE RL IN ACTION :D
+//      world.wallEAnimation(0.15f, 0.8f, GridWorld.policy.PEXPLOIT, Agent.learning_type.SARSA);
 
     }
 }
