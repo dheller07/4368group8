@@ -216,165 +216,247 @@ public class GridWorld {
         System.out.format("Reward: %d\n", reward);
     }
 
-    public void experiment1A() {
+    public void experiment1A(boolean printDetails) {
         agent = new Agent(0.3, 0.5, Agent.learning_type.QLEARNING);
         int reward = 0;
+        int terminalStateReachCount = 0;
         for (int z = 1; z < 6000; z++) {
             run(policy.PRANDOM);
             reward += prev_op.getReward();
             if (isGoalState()) {
-                System.out.println("Goal state reached.");
+                if(printDetails){
+                    System.out.println("Goal state reached.");
+                }
                 initWorld();
+                terminalStateReachCount++;
             }
-            System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
-                    i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
+            if(printDetails){
+                System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
+                        i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
+            }
         }
-        agent.printAllQTables();
+        if(printDetails){
+            agent.printAllQTables();
+        }
         agent.printPathTables(a, b, c, d, e, f, reset_pickup);
         System.out.format("Reward: %d\n", reward);
+        System.out.format("Terminal state reached count: %d\n", terminalStateReachCount);
     }
 
-    public void experiment1B() {
+    public void experiment1B(boolean printDetails) {
         agent = new Agent(0.3, 0.5, Agent.learning_type.QLEARNING);
         int reward = 0;
+        int terminalStateReachCount = 0;
         for (int z = 1; z < 500; z++) {
             run(policy.PRANDOM);
             reward += prev_op.getReward();
             if (isGoalState()) {
-                System.out.println("Goal state reached.");
+                if(printDetails){
+                    System.out.println("Goal state reached.");
+                }
+                terminalStateReachCount++;
                 initWorld();
             }
-            System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
-                    i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
+            if(printDetails){
+                System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
+                        i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
+            }
         }
         for (int z = 501; z < 6000; z++) {
             run(policy.PGREEDY);
             reward += prev_op.getReward();
             if (isGoalState()) {
-                System.out.println("Goal state reached.");
+                if(printDetails){
+                    System.out.println("Goal state reached.");
+                }
+                terminalStateReachCount++;
                 initWorld();
             }
-            System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
-                    i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
+            if(printDetails){
+                System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
+                        i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
+            }
         }
-        agent.printAllQTables();
+        if(printDetails){
+            agent.printAllQTables();
+        }
         agent.printPathTables(a, b, c, d, e, f, reset_pickup);
         System.out.format("Reward: %d\n", reward);
+        System.out.format("Terminal state reached count: %d\n", terminalStateReachCount);
     }
 
-    public void experiment1C() {
+    public void experiment1C(boolean printDetails) {
         agent = new Agent(0.3, 0.5, Agent.learning_type.QLEARNING);
         int reward = 0;
+        int terminalStateReachCount = 0;
         for (int z = 1; z < 500; z++) {
             run(policy.PRANDOM);
             reward += prev_op.getReward();
             if (isGoalState()) {
-                System.out.println("Goal state reached.");
+                if(printDetails){
+                    System.out.println("Goal state reached.");
+                }
                 initWorld();
+                terminalStateReachCount++;
             }
-            System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
-                    i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
+            if(printDetails){
+                System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
+                        i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
+            }
         }
         for (int z = 501; z < 6000; z++) {
             run(policy.PEXPLOIT);
             reward += prev_op.getReward();
             if (isGoalState()) {
-                System.out.println("Goal state reached.");
+                if(printDetails){
+                    System.out.println("Goal state reached.");
+                }
                 initWorld();
+                terminalStateReachCount++;
             }
-            System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
-                    i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
+            if(printDetails){
+                System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
+                        i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
+            }
         }
-        agent.printAllQTables();
+        if(printDetails){
+            agent.printAllQTables();
+        }
         agent.printPathTables(a, b, c, d, e, f, reset_pickup);
         System.out.format("Reward: %d\n", reward);
+        System.out.format("Terminal state reached count: %d\n", terminalStateReachCount);
     }
 
-    public void experiment2() {
+    public void experiment2(boolean printDetails) {
         agent = new Agent(0.3, 0.5, Agent.learning_type.SARSA);
         int reward = 0;
+        int terminalStateReachCount = 0;
         for (int z = 1; z < 500; z++) {
             run(policy.PRANDOM);
             reward += prev_op.getReward();
             if (isGoalState()) {
-                System.out.println("Goal state reached.");
+                if(printDetails){
+                    System.out.println("Goal state reached.");
+                }
                 initWorld();
+                terminalStateReachCount++;
             }
-            System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
-                    i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
+            if(printDetails){
+                System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
+                        i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
+            }
         }
         for (int z = 501; z < 6000; z++) {
             run(policy.PEXPLOIT);
             reward += prev_op.getReward();
             if (isGoalState()) {
-                System.out.println("Goal state reached.");
+                if(printDetails){
+                    System.out.println("Goal state reached.");
+                }
                 initWorld();
+                terminalStateReachCount++;
             }
-            System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
-                    i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
+            if(printDetails){
+                System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
+                        i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
+            }
         }
-        agent.printAllQTables();
+        if(printDetails){
+            agent.printAllQTables();
+        }
         agent.printPathTables(a, b, c, d, e, f, reset_pickup);
         System.out.format("Reward: %d\n", reward);
+        System.out.format("Terminal state reached count: %d\n", terminalStateReachCount);
     }
 
-    public void experiment3A() {
+    public void experiment3A(boolean printDetails) {
         agent = new Agent(0.15, 0.5, Agent.learning_type.QLEARNING);
         int reward = 0;
+        int terminalStateReachCount = 0;
         for (int z = 1; z < 500; z++) {
             run(policy.PRANDOM);
             reward += prev_op.getReward();
             if (isGoalState()) {
-                System.out.println("Goal state reached.");
+                if(printDetails){
+                    System.out.println("Goal state reached.");
+                }
                 initWorld();
+                terminalStateReachCount++;
             }
-            System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
-                    i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
+
+            if(printDetails) {
+                System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
+                        i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
+            }
         }
         for (int z = 501; z < 6000; z++) {
             run(policy.PEXPLOIT);
             reward += prev_op.getReward();
             if (isGoalState()) {
-                System.out.println("Goal state reached.");
+                if(printDetails){
+                    System.out.println("Goal state reached.");
+                }
                 initWorld();
+                terminalStateReachCount++;
             }
-            System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
-                    i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
+
+            if(printDetails) {
+                System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
+                        i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
+            }
         }
-        agent.printAllQTables();
+        if(printDetails){
+            agent.printAllQTables();
+        }
         agent.printPathTables(a, b, c, d, e, f, reset_pickup);
         System.out.format("Reward: %d\n", reward);
+        System.out.format("Terminal state reached count: %d\n", terminalStateReachCount);
     }
 
-    public void experiment3B() {
+    public void experiment3B(boolean printDetails) {
         agent = new Agent(0.45, 0.5, Agent.learning_type.QLEARNING);
         int reward = 0;
+        int terminalStateReachCount = 0;
         for (int z = 1; z < 500; z++) {
             run(policy.PRANDOM);
             reward += prev_op.getReward();
             if (isGoalState()) {
-                System.out.println("Goal state reached.");
+                if(printDetails){
+                    System.out.println("Goal state reached.");
+                }
                 initWorld();
+                terminalStateReachCount++;
+
             }
-            System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
-                    i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
+            if(printDetails) {
+                System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
+                        i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
+            }
         }
         for (int z = 501; z < 6000; z++) {
             run(policy.PEXPLOIT);
             reward += prev_op.getReward();
             if (isGoalState()) {
-                System.out.println("Goal state reached.");
+                if(printDetails){
+                    System.out.println("Goal state reached.");
+                }
                 initWorld();
+                terminalStateReachCount++;
             }
-            System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
-                    i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
+            if(printDetails) {
+                System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
+                        i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
+            }
         }
-        agent.printAllQTables();
+        if(printDetails){
+            agent.printAllQTables();
+        }
         agent.printPathTables(a, b, c, d, e, f, reset_pickup);
         System.out.format("Reward: %d\n", reward);
+        System.out.format("Terminal state reached count: %d\n", terminalStateReachCount);
     }
 
-    public void experiment4() {
+    public void experiment4(boolean printDetails) {
         agent = new Agent(0.3, 0.5, Agent.learning_type.QLEARNING);
         int reward = 0;
         int goal_state_count = 0;
@@ -382,29 +464,41 @@ public class GridWorld {
             run(policy.PRANDOM);
             reward += prev_op.getReward();
             if (isGoalState()) {
-                System.out.println("Goal state reached.");
+                if(printDetails){
+                    System.out.println("Goal state reached.");
+                }
                 goal_state_count++;
                 initWorld();
             }
-            System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
-                    i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
+
+            if(printDetails){
+                System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
+                        i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
+            }
         }
         for (int z = 501; z < 6000; z++) {
             run(policy.PEXPLOIT);
             reward += prev_op.getReward();
             if (isGoalState()) {
-                System.out.println("Goal state reached.");
+                if(printDetails){
+                    System.out.println("Goal state reached.");
+                }
                 goal_state_count++;
                 if (goal_state_count >= 2) {
                     reset_pickup = true;
                 }
                 initWorld();
             }
-            System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
-                    i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
+            if(printDetails){
+                System.out.format("State: %d, %d, %d, %d, %d, %d, %d, %d, %d; Operation: %s; Qvalue: %.3f\n",
+                        i, j, x, a, b, c, d, e, f, prev_op.getOpType().toString(), prev_op.getQValue());
+            }
         }
-        agent.printAllQTables();
+        if(printDetails){
+            agent.printAllQTables();
+        }
         agent.printPathTables(a, b, c, d, e, f, reset_pickup);
         System.out.format("Reward: %d\n", reward);
+        System.out.format("Terminal state reached count: %d\n", goal_state_count);
     }
 }
